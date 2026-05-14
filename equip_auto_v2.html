@@ -64,7 +64,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fef9ec,
 .country{cursor:default;transition:all .25s ease}
 .country.highlighted{cursor:pointer}
 .country.highlighted:hover{filter:brightness(1.15) drop-shadow(0 4px 12px rgba(0,0,0,.3));transform:translateY(-1px)}
-.map-tooltip{position:absolute;background:rgba(17,24,39,.92);color:white;font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;pointer-events:none;white-space:nowrap;z-index:10;transition:opacity .15s;opacity:0;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.map-tooltip{position:absolute;background:white;border:1px solid #E5E7EB;color:#111827;font-size:12px;padding:10px 14px;border-radius:10px;pointer-events:none;z-index:10;transition:opacity .15s;opacity:0;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:180px}
 .map-legend{display:flex;gap:16px;justify-content:center;margin-top:8px;font-size:11px}
 .map-legend-item{display:flex;align-items:center;gap:5px;color:#374151;font-weight:600}
 .map-legend-dot{width:12px;height:12px;border-radius:3px}
@@ -193,6 +193,8 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fef9ec,
   .mf.full{grid-column:1}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 </head>
 <body>
 <div class="page">
@@ -234,46 +236,16 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fef9ec,
     <p style="font-size:11px;color:#6B7280;margin-bottom:10px">Survolez 🇳🇬 Nigeria et 🇨🇮 Côte d'Ivoire pour les détails · Cliquez pour explorer</p>
     <div class="map-wrap" id="map-wrap">
       <div class="map-tooltip" id="map-tt"></div>
-      <svg viewBox="0 0 800 580" xmlns="http://www.w3.org/2000/svg" id="map-svg">
-        <defs>
-          <filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgba(0,0,0,0.25)"/></filter>
-        </defs>
-        <rect width="800" height="580" fill="#DBEAFE" rx="12"/>
-        <polygon class="country" data-name="Mauritanie" data-info="Mauritanie" points="40.1,236.0 113.9,236.0 158.6,233.7 227.9,236.0 303.9,221.9 315.1,78.7 422.4,31.7 493.9,149.1 489.4,247.7 426.8,259.5 422.4,254.8 315.1,294.7 299.4,254.8 232.4,236.0 176.5,240.7 69.2,219.6 40.1,116.3 40.1,236.0" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Sénégal" data-info="Sénégal" points="31.2,264.2 40.1,290.0 71.4,332.3 84.8,313.5 113.9,311.1 169.8,299.4 158.6,266.5 122.8,243.0 91.5,243.0 55.8,259.5 31.2,264.2" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Gambie" data-info="Gambie" points="46.8,301.7 113.9,301.7 113.9,283.0 46.8,283.0 46.8,301.7" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Guinée-Bissau" data-info="Guinée-Bissau" points="49.1,348.7 82.6,351.0 116.1,348.7 116.1,322.9 82.6,308.8 62.5,322.9 49.1,337.0 49.1,348.7" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Guinée" data-info="Guinée" points="84.8,358.1 93.8,372.2 116.1,348.7 167.5,376.9 225.6,426.2 252.5,402.7 252.5,360.4 232.4,325.2 176.5,339.3 131.8,313.5 93.8,325.2 84.8,358.1" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Sierra Leone" data-info="Sierra Leone" points="125.1,445.0 172.0,445.0 192.1,409.7 142.9,376.9 125.1,391.0 125.1,445.0" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Libéria" data-info="Libéria" points="165.3,442.6 256.9,503.7 254.7,454.3 230.1,454.3 210.0,423.8 165.3,430.9 165.3,442.6" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country highlighted ci" data-name="Côte d'Ivoire" data-info="🇨🇮 Côte d'Ivoire: 1,395 acteurs · 62 villes · ⭐4.07" points="230.1,494.3 310.6,506.0 366.5,489.6 366.5,407.4 344.1,355.7 288.2,365.1 254.7,376.9 232.4,419.1 230.1,494.3" fill="#16A34A" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Ghana" data-info="Ghana" points="348.6,489.6 449.2,489.6 449.2,344.0 420.1,344.0 366.5,407.4 348.6,489.6" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Burkina Faso" data-info="Burkina Faso" points="299.4,386.3 366.5,407.4 420.1,344.0 476.0,339.3 476.0,290.0 433.5,259.5 420.1,254.8 359.8,290.0 321.8,290.0 299.4,301.7 299.4,386.3" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Mali" data-info="Mali" points="299.4,360.4 277.1,353.4 254.7,344.0 232.4,325.2 232.4,254.8 254.7,252.4 299.4,254.8 321.8,221.9 420.1,254.8 493.9,149.1 518.5,149.1 518.5,231.3 511.8,278.3 455.9,290.0 433.5,259.5 420.1,254.8 422.4,313.5 366.5,348.7 344.1,348.7 299.4,360.4" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Niger" data-info="Niger" points="433.5,259.5 489.4,247.7 578.8,278.3 690.6,290.0 735.3,280.6 777.8,55.2 467.1,90.4 422.4,31.7 493.9,149.1 518.5,231.3 511.8,278.3 455.9,290.0 433.5,259.5" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country highlighted ng" data-name="Nigeria" data-info="🇳🇬 Nigeria: 10,143 acteurs · 45 villes · ⭐4.26" points="482.7,454.3 489.4,506.0 634.7,506.0 750.9,419.1 746.5,337.0 712.9,280.6 634.7,306.4 578.8,278.3 511.8,278.3 489.4,247.7 489.4,337.0 482.7,454.3" fill="#0033A1" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Togo" data-info="Togo" points="422.4,346.3 462.6,346.3 462.6,461.4 449.2,489.6 422.4,442.6 422.4,346.3" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Bénin" data-info="Bénin" points="462.6,346.3 507.3,315.8 500.6,461.4 462.6,461.4 462.6,346.3" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<polygon class="country" data-name="Cameroun" data-info="Cameroun" points="612.4,548.3 780.0,548.3 784.5,430.9 746.5,337.0 750.9,419.1 634.7,506.0 612.4,506.0 612.4,548.3" fill="#C8D9E6" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
-<text x="578.8" y="400.3" text-anchor="middle" font-family="Poppins,sans-serif" font-size="11" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">NIGERIA</text>
-<text x="534.1" y="437.9" text-anchor="middle" font-family="Poppins,sans-serif" font-size="14" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">🇳🇬</text>
-<text x="299.4" y="430.9" text-anchor="middle" font-family="Poppins,sans-serif" font-size="7" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">CÔTE D'IVOIRE</text>
-<text x="299.4" y="454.3" text-anchor="middle" font-family="Poppins,sans-serif" font-size="12" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">🇨🇮</text>
-<text x="109.4" y="273.6" text-anchor="middle" font-family="Poppins,sans-serif" font-size="7" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">SÉNÉGAL</text>
-<text x="467.1" y="196.1" text-anchor="middle" font-family="Poppins,sans-serif" font-size="9" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">MALI</text>
-<text x="601.2" y="172.6" text-anchor="middle" font-family="Poppins,sans-serif" font-size="9" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">NIGER</text>
-<text x="91.5" y="337.0" text-anchor="middle" font-family="Poppins,sans-serif" font-size="7" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">GUINÉE</text>
-<text x="388.8" y="430.9" text-anchor="middle" font-family="Poppins,sans-serif" font-size="7" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">GHANA</text>
-<text x="388.8" y="329.9" text-anchor="middle" font-family="Poppins,sans-serif" font-size="6" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">B.FASO</text>
-<text x="476.0" y="395.7" text-anchor="middle" font-family="Poppins,sans-serif" font-size="5" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">BÉNIN</text>
-<text x="442.5" y="395.7" text-anchor="middle" font-family="Poppins,sans-serif" font-size="5" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">TOGO</text>
-<text x="165.3" y="301.7" text-anchor="middle" font-family="Poppins,sans-serif" font-size="6" fill="white" font-weight="600" opacity="0.9" style="pointer-events:none">MAURITANIE</text>
-      </svg>
+      <svg id="map-svg" viewBox="0 0 800 500" style="width:100%;height:auto;display:block;border-radius:12px"></svg>
+    </div>    <div style="display:flex;align-items:center;gap:10px;margin-top:10px;font-size:11px;color:#6B7280;padding:0 4px">
+      <span>0 acteur</span>
+      <div style="flex:1;height:8px;border-radius:4px;background:linear-gradient(to right,#F3F4F6,#FFF0E6,#E8600A)"></div>
+      <span id="map-max-label">… acteurs</span>
     </div>
-    <div class="map-legend">
-      <div class="map-legend-item"><div class="map-legend-dot" style="background:#0033A1"></div>Nigeria — 10,143 acteurs</div>
-      <div class="map-legend-item"><div class="map-legend-dot" style="background:#16A34A"></div>Côte d'Ivoire — 1,395 acteurs</div>
-      <div class="map-legend-item"><div class="map-legend-dot" style="background:#C8D9E6"></div>Autres pays</div>
+    <div style="display:flex;gap:16px;justify-content:center;margin-top:8px;font-size:11px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:5px;color:#374151;font-weight:600"><div style="width:12px;height:12px;border-radius:3px;background:rgb(232,96,10)"></div>Nigeria — 10 143 acteurs</div>
+      <div style="display:flex;align-items:center;gap:5px;color:#374151;font-weight:600"><div style="width:12px;height:12px;border-radius:3px;background:rgb(250,196,158)"></div>Côte d'Ivoire — 1 395 acteurs</div>
+      <div style="display:flex;align-items:center;gap:5px;color:#374151;font-weight:600"><div style="width:12px;height:12px;border-radius:3px;background:#F3F4F6;border:1px solid #E5E7EB"></div>Autres pays (12 couverts)</div>
     </div>
   </div>
   <div class="sec">
@@ -468,39 +440,99 @@ function initTab(id) {
 // SVG MAP
 // ══════════════════════════════════════
 (function initMap() {
-  const svg = document.getElementById('map-svg');
-  const tt  = document.getElementById('map-tt');
-  const wrap = document.getElementById('map-wrap');
-  const COUNTRY_DATA = {
-    'Nigeria': {flag:'🇳🇬',total:10143,cities:45,rating:4.26,pays:'ng'},
-    "Côte d\'Ivoire": {flag:'🇨🇮',total:1395,cities:62,rating:4.07,pays:'ci'}
+  const COUNTRY_IDS = { CI:'384',NG:'566',GH:'288',SN:'686',BJ:'204',TG:'768',BF:'854',LR:'430',SL:'694',GN:'324',GM:'270',GW:'624' };
+  const ID_TO_CODE = Object.fromEntries(Object.entries(COUNTRY_IDS).map(([c,id])=>[id,c]));
+  const COUNTRY_META = {
+    CI:{name:"Côte d'Ivoire",flag:'🇨🇮'},NG:{name:'Nigeria',flag:'🇳🇬'},
+    GH:{name:'Ghana',flag:'🇬🇭'},SN:{name:'Sénégal',flag:'🇸🇳'},
+    BJ:{name:'Bénin',flag:'🇧🇯'},TG:{name:'Togo',flag:'🇹🇬'},
+    BF:{name:'Burkina Faso',flag:'🇧🇫'},LR:{name:'Libéria',flag:'🇱🇷'},
+    SL:{name:'Sierra Leone',flag:'🇸🇱'},GN:{name:'Guinée',flag:'🇬🇳'},
+    GM:{name:'Gambie',flag:'🇬🇲'},GW:{name:'Guinée-Bissau',flag:'🇬🇼'},
   };
-  svg.querySelectorAll('.highlighted').forEach(el => {
-    const name = el.dataset.name;
-    el.addEventListener('mouseenter', ev => {
-      const cd = COUNTRY_DATA[name] || COUNTRY_DATA[name.replace("'","\'")] || null;
-      if (!cd) return;
-      tt.textContent = `${cd.flag} ${name} · ${cd.total.toLocaleString('fr-FR')} acteurs · ${cd.cities} villes · ⭐${cd.rating}`;
-      tt.style.opacity='1';
-      el.style.filter='brightness(1.18) drop-shadow(0 4px 14px rgba(0,0,0,.35))';
+  const COUNT_BY_CODE = { NG:10143, CI:1395 };
+  const maxCount = Math.max(1, ...Object.values(COUNT_BY_CODE));
+
+  function colorForCount(count) {
+    if (!count || count === 0) return '#F3F4F6';
+    const t = count / maxCount;
+    const r = Math.round(255 - (255-232)*t);
+    const g = Math.round(240 - (240-96)*t);
+    const b = Math.round(230 - (230-10)*t);
+    return `rgb(${r},${g},${b})`;
+  }
+
+  const svg = d3.select('#map-svg');
+  const W = 800, H = 500;
+  const projection = d3.geoMercator().scale(700).center([0, 9]).translate([W/2, H/2]);
+  const path = d3.geoPath().projection(projection);
+  const tt = document.getElementById('map-tt');
+  const wrap = document.getElementById('map-wrap');
+
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+    .then(r => r.json())
+    .then(world => {
+      const allIds = new Set(Object.values(COUNTRY_IDS));
+      const features = topojson.feature(world, world.objects.countries).features
+        .filter(f => allIds.has(String(f.id)));
+
+      svg.selectAll('path')
+        .data(features)
+        .enter().append('path')
+        .attr('d', path)
+        .attr('fill', d => colorForCount(COUNT_BY_CODE[ID_TO_CODE[String(d.id)]] || 0))
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 0.75)
+        .style('cursor', d => COUNT_BY_CODE[ID_TO_CODE[String(d.id)]] ? 'pointer' : 'default')
+        .style('transition', 'opacity .2s')
+        .on('mouseenter', function(ev, d) {
+          const code = ID_TO_CODE[String(d.id)];
+          const count = COUNT_BY_CODE[code] || 0;
+          if (!count) return;
+          const meta = COUNTRY_META[code] || {};
+          const rect = wrap.getBoundingClientRect();
+          const ex = ev.clientX - rect.left + 12;
+          const ey = ev.clientY - rect.top - 80;
+          tt.innerHTML = `
+            <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#1a2341;font-size:13px">
+              <span style="font-size:16px">${meta.flag||''}</span>${meta.name||code}
+            </div>
+            <div style="margin-top:4px;color:#6B7280;font-size:12px">${count.toLocaleString('fr-FR')} acteurs répertoriés</div>
+            <div style="margin-top:4px;color:#b45309;font-size:12px;font-weight:600">Cliquer pour filtrer →</div>`;
+          tt.style.opacity='1';
+          tt.style.left=Math.min(ex, wrap.offsetWidth-200)+'px';
+          tt.style.top=Math.max(ey,4)+'px';
+          d3.select(this).attr('stroke','#E8600A').attr('stroke-width',2.5).style('opacity',.85);
+        })
+        .on('mousemove', function(ev) {
+          const rect = wrap.getBoundingClientRect();
+          tt.style.left=Math.min(ev.clientX-rect.left+12, wrap.offsetWidth-200)+'px';
+          tt.style.top=Math.max(ev.clientY-rect.top-80,4)+'px';
+        })
+        .on('mouseleave', function(ev, d) {
+          const code = ID_TO_CODE[String(d.id)];
+          const sel = (document.getElementById('mapSelCode')||{}).value;
+          const isSelected = sel===code;
+          tt.style.opacity='0';
+          d3.select(this).attr('stroke',isSelected?'#E8600A':'#fff').attr('stroke-width',isSelected?2.5:.75).style('opacity',1);
+        })
+        .on('click', function(ev, d) {
+          const code = ID_TO_CODE[String(d.id)];
+          if (!COUNT_BY_CODE[code]) return;
+          showTab('search', document.querySelectorAll('.tab')[6]);
+          const q = COUNTRY_META[code]?.name || '';
+          document.getElementById('gsearch').value = q;
+          setSF(code==='NG'?'ng':'ci', document.querySelector('.sf-pill[onclick*="\'' + (code==='NG'?'ng':'ci') + '\'"]'));
+          doSearch(q);
+        });
+
+      // Gradient legend update
+      document.getElementById('map-max-label').textContent = maxCount.toLocaleString('fr-FR') + ' acteurs';
+    })
+    .catch(() => {
+      svg.append('text').attr('x',400).attr('y',250).attr('text-anchor','middle')
+        .attr('fill','#9CA3AF').attr('font-size',13).text('Carte non disponible (connexion requise)');
     });
-    el.addEventListener('mousemove', ev => {
-      const rect = wrap.getBoundingClientRect();
-      const x = ev.clientX - rect.left + 10;
-      const y = ev.clientY - rect.top - 36;
-      tt.style.left = Math.min(x, rect.width-220) + 'px';
-      tt.style.top  = Math.max(y,4) + 'px';
-    });
-    el.addEventListener('mouseleave', () => {
-      tt.style.opacity='0';
-      el.style.filter='';
-    });
-    el.addEventListener('click', () => {
-      const cd = COUNTRY_DATA[name] || null;
-      if (!cd) return;
-      showTab(cd.pays==='ng'?'categories':'categories', document.querySelectorAll('.tab')[2]);
-    });
-  });
 })();
 
 // ══════════════════════════════════════
