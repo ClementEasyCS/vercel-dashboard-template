@@ -193,8 +193,6 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fef9ec,
   .mf.full{grid-column:1}
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
 </head>
 <body>
 <div class="page">
@@ -437,11 +435,10 @@ function initTab(id) {
 }
 
 // ══════════════════════════════════════
-// SVG MAP
+// SVG MAP — inline paths, no CDN fetch
 // ══════════════════════════════════════
 (function initMap() {
-  const COUNTRY_IDS = { CI:'384',NG:'566',GH:'288',SN:'686',BJ:'204',TG:'768',BF:'854',LR:'430',SL:'694',GN:'324',GM:'270',GW:'624' };
-  const ID_TO_CODE = Object.fromEntries(Object.entries(COUNTRY_IDS).map(([c,id])=>[id,c]));
+  const ID_TO_CODE = {'686':'SN','204':'BJ','566':'NG','768':'TG','288':'GH','384':'CI','324':'GN','624':'GW','430':'LR','694':'SL','854':'BF','270':'GM'};
   const COUNTRY_META = {
     CI:{name:"Côte d'Ivoire",flag:'🇨🇮'},NG:{name:'Nigeria',flag:'🇳🇬'},
     GH:{name:'Ghana',flag:'🇬🇭'},SN:{name:'Sénégal',flag:'🇸🇳'},
@@ -453,8 +450,24 @@ function initTab(id) {
   const COUNT_BY_CODE = { NG:10143, CI:1395 };
   const maxCount = Math.max(1, ...Object.values(COUNT_BY_CODE));
 
+  // Pre-projected SVG paths (geoMercator scale=700, center=[0,9], viewBox 800x500)
+  const INLINE_PATHS = {
+    "686": "M 195.81 192.73 L 190.75 182.93 L 184.68 178.44 L 190.05 176.05 L 195.94 167.15 L 198.84 160.62 L 203.07 156.54 L 209.14 157.64 L 215.07 154.86 L 221.89 154.73 L 227.74 158.46 L 235.83 161.84 L 243.22 171.19 L 251.32 179.85 L 251.89 187.71 L 254.26 194.90 L 258.84 198.43 L 259.89 203.29 L 259.32 207.19 L 257.56 207.89 L 250.92 206.89 L 250.00 208.29 L 247.31 208.56 L 238.52 205.51 L 232.62 205.39 L 210.06 204.86 L 206.76 206.28 L 202.72 205.87 L 196.25 207.91 L 194.23 198.30 L 205.35 198.58 L 208.30 196.81 L 210.50 196.71 L 215.03 193.82 L 220.26 196.45 L 225.59 196.69 L 230.86 193.86 L 228.40 190.24 L 224.35 192.35 L 220.57 192.29 L 215.73 189.20 L 211.86 189.39 L 209.09 192.37 L 195.81 192.73 Z",
+    "204": "M 432.88 283.78 L 422.81 285.22 L 419.77 276.75 L 420.34 248.41 L 417.88 245.85 L 417.40 239.77 L 413.17 235.43 L 409.43 231.77 L 410.97 225.22 L 415.20 223.81 L 417.66 218.37 L 423.64 217.19 L 426.32 213.47 L 430.41 209.81 L 434.81 209.77 L 444.14 216.96 L 443.65 221.11 L 446.38 228.49 L 444.00 233.49 L 445.28 236.83 L 439.34 244.51 L 435.56 248.30 L 433.27 256.09 L 433.58 263.94 L 432.88 283.78 Z",
+    "566": "M 432.88 283.78 L 433.58 263.94 L 433.27 256.09 L 435.56 248.30 L 439.34 244.51 L 445.28 236.83 L 444.00 233.49 L 446.38 228.49 L 443.65 221.11 L 444.14 216.96 L 444.97 205.81 L 448.49 200.76 L 450.21 193.54 L 453.37 190.82 L 466.48 189.33 L 478.75 194.03 L 483.33 198.77 L 489.57 198.98 L 495.33 195.90 L 510.15 202.38 L 516.36 202.08 L 523.57 196.73 L 530.74 197.11 L 534.26 195.35 L 540.85 196.07 L 550.31 199.75 L 559.86 192.71 L 562.71 193.22 L 570.98 206.95 L 573.27 206.68 L 578.11 211.65 L 576.74 213.91 L 576.13 218.05 L 565.84 227.69 L 562.58 235.61 L 560.87 242.06 L 558.27 244.83 L 555.81 253.50 L 549.30 258.58 L 547.41 264.82 L 544.64 269.79 L 543.49 274.91 L 535.09 279.06 L 528.23 274.00 L 523.61 274.21 L 516.36 281.39 L 512.79 281.51 L 506.99 293.37 L 503.87 302.04 L 491.15 306.46 L 486.54 305.82 L 481.83 308.56 L 472.07 308.29 L 465.51 300.61 L 461.51 291.74 L 452.85 283.66 L 443.65 283.80 L 432.88 283.78 Z",
+    "768": "M 410.97 225.22 L 409.43 231.77 L 413.17 235.43 L 417.40 239.77 L 417.88 245.85 L 420.34 248.41 L 419.77 276.75 L 422.81 285.22 L 412.95 287.84 L 410.23 283.53 L 406.97 275.73 L 406.00 269.60 L 408.69 258.49 L 405.65 254.00 L 404.46 244.24 L 404.51 235.24 L 399.41 228.82 L 400.29 224.95 L 410.97 225.22 Z",
+    "288": "M 400.29 224.95 L 399.41 228.82 L 404.51 235.24 L 404.46 244.24 L 405.65 254.00 L 408.69 258.49 L 406.00 269.60 L 406.97 275.73 L 410.23 283.53 L 412.95 287.84 L 393.78 295.03 L 387.00 299.24 L 376.01 302.79 L 365.10 299.30 L 365.67 294.47 L 360.35 283.89 L 363.56 270.00 L 368.71 259.64 L 365.45 242.04 L 363.78 232.71 L 364.09 225.64 L 385.29 225.08 L 390.70 225.98 L 394.66 223.96 L 400.29 224.95 Z",
+    "384": "M 301.90 235.05 L 303.48 233.91 L 306.87 235.78 L 316.32 235.89 L 318.57 232.27 L 320.68 232.50 L 324.20 231.10 L 326.09 236.41 L 328.95 234.86 L 333.96 233.01 L 339.46 235.72 L 341.61 239.81 L 347.11 242.44 L 351.38 239.31 L 357.09 238.85 L 365.45 242.04 L 368.71 259.64 L 363.56 270.00 L 360.35 283.89 L 365.67 294.47 L 365.10 299.30 L 359.56 299.45 L 351.03 297.04 L 343.20 297.19 L 328.73 299.32 L 320.24 302.85 L 308.14 307.35 L 305.77 307.04 L 306.73 296.94 L 307.88 295.40 L 307.53 290.56 L 302.34 285.43 L 298.47 284.59 L 294.90 281.22 L 297.54 275.77 L 296.31 269.81 L 296.88 266.22 L 298.82 266.22 L 299.57 260.83 L 298.60 258.45 L 299.79 256.74 L 304.32 255.25 L 301.28 245.35 L 298.47 240.21 L 299.48 236.01 L 301.90 235.05 Z",
+    "324": "M 232.62 205.39 L 238.52 205.51 L 247.31 208.56 L 250.00 208.29 L 250.92 206.89 L 257.56 207.89 L 259.32 207.19 L 260.02 211.76 L 261.96 211.74 L 265.17 210.09 L 267.19 210.49 L 270.58 213.66 L 275.81 214.67 L 279.16 211.97 L 283.12 210.30 L 286.06 208.54 L 288.48 208.86 L 291.21 211.61 L 292.66 215.05 L 297.67 220.29 L 295.17 223.50 L 294.68 227.54 L 297.28 226.32 L 298.82 227.77 L 298.16 231.47 L 301.90 235.05 L 299.48 236.01 L 298.47 240.21 L 301.28 245.35 L 304.32 255.25 L 299.79 256.74 L 298.60 258.45 L 299.57 260.83 L 298.82 266.22 L 296.88 266.22 L 293.45 265.91 L 290.94 270.87 L 287.51 270.81 L 285.10 268.18 L 285.93 263.23 L 280.83 255.67 L 277.62 257.07 L 275.02 257.34 L 271.64 258.05 L 271.77 253.52 L 269.83 250.27 L 270.23 246.69 L 267.59 241.47 L 264.16 237.04 L 254.40 237.02 L 251.54 239.37 L 248.19 239.65 L 246.08 242.33 L 244.67 245.75 L 238.17 251.19 L 232.80 243.88 L 228.05 239.02 L 224.93 237.42 L 221.89 234.94 L 220.48 229.45 L 218.68 226.72 L 215.16 224.68 L 220.57 218.60 L 224.27 218.83 L 227.48 216.74 L 230.16 216.72 L 232.10 215.08 L 231.04 210.93 L 232.40 209.62 L 232.62 205.39 Z",
+    "624": "M 196.25 207.91 L 202.72 205.87 L 206.76 206.28 L 210.06 204.86 L 232.62 205.39 L 232.40 209.62 L 231.04 210.93 L 232.10 215.08 L 230.16 216.72 L 227.48 216.74 L 224.27 218.83 L 220.57 218.60 L 215.16 224.68 L 208.61 219.47 L 203.46 218.64 L 200.69 215.14 L 200.74 213.24 L 197.04 210.59 L 196.25 207.91 Z",
+    "430": "M 296.88 266.22 L 296.31 269.81 L 297.54 275.77 L 294.90 281.22 L 298.47 284.59 L 302.34 285.43 L 307.53 290.56 L 307.88 295.40 L 306.73 296.94 L 305.77 307.04 L 302.56 307.15 L 289.98 301.30 L 278.89 291.97 L 268.47 285.24 L 260.24 277.31 L 263.15 273.37 L 263.81 269.79 L 269.35 263.11 L 275.02 257.34 L 277.62 257.07 L 280.83 255.67 L 285.93 263.23 L 285.10 268.18 L 287.51 270.81 L 290.94 270.87 L 293.45 265.91 L 296.88 266.22 Z",
+    "694": "M 238.17 251.19 L 244.67 245.75 L 246.08 242.33 L 248.19 239.65 L 251.54 239.37 L 254.40 237.02 L 264.16 237.04 L 267.59 241.47 L 270.23 246.69 L 269.83 250.27 L 271.77 253.52 L 271.64 258.05 L 275.02 257.34 L 269.35 263.11 L 263.81 269.79 L 263.15 273.37 L 260.24 277.31 L 256.95 276.39 L 248.15 271.43 L 241.82 264.84 L 239.66 260.33 L 238.17 251.19 Z",
+    "854": "M 333.96 233.01 L 333.17 225.79 L 336.51 220.52 L 336.20 216.30 L 345.92 205.94 L 347.73 197.35 L 351.07 194.29 L 356.96 195.97 L 362.06 193.41 L 363.74 190.18 L 373.24 184.53 L 375.57 180.60 L 386.96 175.34 L 393.69 173.54 L 396.77 175.98 L 404.60 175.92 L 403.63 182.03 L 405.26 187.77 L 412.12 195.99 L 412.51 202.06 L 426.59 204.90 L 426.32 213.47 L 423.64 217.19 L 417.66 218.37 L 415.20 223.81 L 410.97 225.22 L 400.29 224.95 L 394.66 223.96 L 390.70 225.98 L 385.29 225.08 L 364.09 225.64 L 363.78 232.71 L 365.45 242.04 L 357.09 238.85 L 351.38 239.31 L 347.11 242.44 L 341.61 239.81 L 339.46 235.72 L 333.96 233.01 Z",
+    "270": "M 195.81 192.73 L 209.09 192.37 L 211.86 189.39 L 215.73 189.20 L 220.57 192.29 L 224.35 192.35 L 228.40 190.24 L 230.86 193.86 L 225.59 196.69 L 220.26 196.45 L 215.03 193.82 L 210.50 196.71 L 208.30 196.81 L 205.35 198.58 L 194.23 198.30 L 195.81 192.73 Z",
+  };
+
   function colorForCount(count) {
-    if (!count || count === 0) return '#F3F4F6';
+    if (!count) return '#F3F4F6';
     const t = count / maxCount;
     const r = Math.round(255 - (255-232)*t);
     const g = Math.round(240 - (240-96)*t);
@@ -462,77 +475,75 @@ function initTab(id) {
     return `rgb(${r},${g},${b})`;
   }
 
-  const svg = d3.select('#map-svg');
-  const W = 800, H = 500;
-  const projection = d3.geoMercator().scale(700).center([0, 9]).translate([W/2, H/2]);
-  const path = d3.geoPath().projection(projection);
+  const svgEl = document.getElementById('map-svg');
   const tt = document.getElementById('map-tt');
   const wrap = document.getElementById('map-wrap');
+  const NS = 'http://www.w3.org/2000/svg';
+  let selectedCode = null;
 
-  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-    .then(r => r.json())
-    .then(world => {
-      const allIds = new Set(Object.values(COUNTRY_IDS));
-      const features = topojson.feature(world, world.objects.countries).features
-        .filter(f => allIds.has(String(f.id)));
+  Object.entries(INLINE_PATHS).forEach(([id, d]) => {
+    const code = ID_TO_CODE[id];
+    if (!code) return;
+    const count = COUNT_BY_CODE[code] || 0;
+    const isClickable = count > 0;
+    const fill = colorForCount(count);
 
-      svg.selectAll('path')
-        .data(features)
-        .enter().append('path')
-        .attr('d', path)
-        .attr('fill', d => colorForCount(COUNT_BY_CODE[ID_TO_CODE[String(d.id)]] || 0))
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 0.75)
-        .style('cursor', d => COUNT_BY_CODE[ID_TO_CODE[String(d.id)]] ? 'pointer' : 'default')
-        .style('transition', 'opacity .2s')
-        .on('mouseenter', function(ev, d) {
-          const code = ID_TO_CODE[String(d.id)];
-          const count = COUNT_BY_CODE[code] || 0;
-          if (!count) return;
-          const meta = COUNTRY_META[code] || {};
-          const rect = wrap.getBoundingClientRect();
-          const ex = ev.clientX - rect.left + 12;
-          const ey = ev.clientY - rect.top - 80;
-          tt.innerHTML = `
-            <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#1a2341;font-size:13px">
-              <span style="font-size:16px">${meta.flag||''}</span>${meta.name||code}
-            </div>
-            <div style="margin-top:4px;color:#6B7280;font-size:12px">${count.toLocaleString('fr-FR')} acteurs répertoriés</div>
-            <div style="margin-top:4px;color:#b45309;font-size:12px;font-weight:600">Cliquer pour filtrer →</div>`;
-          tt.style.opacity='1';
-          tt.style.left=Math.min(ex, wrap.offsetWidth-200)+'px';
-          tt.style.top=Math.max(ey,4)+'px';
-          d3.select(this).attr('stroke','#E8600A').attr('stroke-width',2.5).style('opacity',.85);
-        })
-        .on('mousemove', function(ev) {
-          const rect = wrap.getBoundingClientRect();
-          tt.style.left=Math.min(ev.clientX-rect.left+12, wrap.offsetWidth-200)+'px';
-          tt.style.top=Math.max(ev.clientY-rect.top-80,4)+'px';
-        })
-        .on('mouseleave', function(ev, d) {
-          const code = ID_TO_CODE[String(d.id)];
-          const sel = (document.getElementById('mapSelCode')||{}).value;
-          const isSelected = sel===code;
-          tt.style.opacity='0';
-          d3.select(this).attr('stroke',isSelected?'#E8600A':'#fff').attr('stroke-width',isSelected?2.5:.75).style('opacity',1);
-        })
-        .on('click', function(ev, d) {
-          const code = ID_TO_CODE[String(d.id)];
-          if (!COUNT_BY_CODE[code]) return;
-          showTab('search', document.querySelectorAll('.tab')[6]);
-          const q = COUNTRY_META[code]?.name || '';
-          document.getElementById('gsearch').value = q;
-          setSF(code==='NG'?'ng':'ci', document.querySelector('.sf-pill[onclick*="\'' + (code==='NG'?'ng':'ci') + '\'"]'));
-          doSearch(q);
+    const pathEl = document.createElementNS(NS, 'path');
+    pathEl.setAttribute('d', d);
+    pathEl.setAttribute('fill', fill);
+    pathEl.setAttribute('stroke', '#fff');
+    pathEl.setAttribute('stroke-width', '0.75');
+    pathEl.style.cursor = isClickable ? 'pointer' : 'default';
+    pathEl.style.transition = 'opacity .2s';
+    pathEl.dataset.code = code;
+
+    if (isClickable) {
+      pathEl.addEventListener('mouseenter', function(ev) {
+        const meta = COUNTRY_META[code] || {};
+        const rect = wrap.getBoundingClientRect();
+        const ex = ev.clientX - rect.left + 12;
+        const ey = ev.clientY - rect.top - 80;
+        tt.innerHTML = `<div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#1a2341;font-size:13px"><span style="font-size:16px">${meta.flag||''}</span>${meta.name||code}</div><div style="margin-top:4px;color:#6B7280;font-size:12px">${count.toLocaleString('fr-FR')} acteurs répertoriés</div><div style="margin-top:4px;color:#b45309;font-size:12px;font-weight:600">Cliquer pour filtrer →</div>`;
+        tt.style.opacity='1';
+        tt.style.left=Math.min(ex, wrap.offsetWidth-200)+'px';
+        tt.style.top=Math.max(ey,4)+'px';
+        this.setAttribute('stroke','#E8600A');
+        this.setAttribute('stroke-width','2.5');
+        this.style.opacity='0.85';
+      });
+      pathEl.addEventListener('mousemove', function(ev) {
+        const rect = wrap.getBoundingClientRect();
+        tt.style.left=Math.min(ev.clientX-rect.left+12, wrap.offsetWidth-200)+'px';
+        tt.style.top=Math.max(ev.clientY-rect.top-80,4)+'px';
+      });
+      pathEl.addEventListener('mouseleave', function() {
+        tt.style.opacity='0';
+        const isSel = selectedCode===code;
+        this.setAttribute('stroke', isSel?'#E8600A':'#fff');
+        this.setAttribute('stroke-width', isSel?'2.5':'0.75');
+        this.style.opacity='1';
+      });
+      pathEl.addEventListener('click', function() {
+        selectedCode = code;
+        showTab('search', document.querySelectorAll('.tab')[6]);
+        const q = COUNTRY_META[code]?.name || '';
+        document.getElementById('gsearch').value = q;
+        setSF(code==='NG'?'ng':'ci', document.querySelector('.sf-pill[onclick*="\'' + (code==='NG'?'ng':'ci') + '\'"]'));
+        doSearch(q);
+        // highlight selected country
+        svgEl.querySelectorAll('path').forEach(p => {
+          const c = p.dataset.code;
+          const cnt = COUNT_BY_CODE[c] || 0;
+          if (!cnt) return;
+          p.setAttribute('stroke', p.dataset.code===code?'#E8600A':'#fff');
+          p.setAttribute('stroke-width', p.dataset.code===code?'2.5':'0.75');
         });
+      });
+    }
+    svgEl.appendChild(pathEl);
+  });
 
-      // Gradient legend update
-      document.getElementById('map-max-label').textContent = maxCount.toLocaleString('fr-FR') + ' acteurs';
-    })
-    .catch(() => {
-      svg.append('text').attr('x',400).attr('y',250).attr('text-anchor','middle')
-        .attr('fill','#9CA3AF').attr('font-size',13).text('Carte non disponible (connexion requise)');
-    });
+  document.getElementById('map-max-label').textContent = maxCount.toLocaleString('fr-FR') + ' acteurs';
 })();
 
 // ══════════════════════════════════════
