@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parc Équipements Autosphere — Mai 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Exo+2:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+@keyframes shimmer{0%{transform:translateX(-100%) skewX(-15deg)}100%{transform:translateX(300%) skewX(-15deg)}}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(18px,-14px) scale(1.06)}70%{transform:translate(-10px,8px) scale(.96)}}
+@keyframes hdrGrad{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}70%{box-shadow:0 0 0 6px rgba(255,255,255,0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Exo 2',sans-serif;background:linear-gradient(135deg,#ccdeff,#dce9ff,#c5d8fe,#e2ecff,#b8d0ff);background-size:400% 400%;animation:gradShift 14s ease infinite;color:#111827;min-height:100vh;padding:1.25rem .75rem}
+.page{max-width:900px;margin:0 auto;background:white;border-radius:24px;overflow:hidden;box-shadow:0 4px 8px rgba(17,103,255,.05),0 20px 50px rgba(17,103,255,.13),0 60px 100px rgba(17,103,255,.10);animation:scaleIn .55s cubic-bezier(.34,1.2,.64,1) both}
+
+.hdr{background:linear-gradient(130deg,#0040cc,#1167FF,#2d7aff,#4a8eff,#1167FF);background-size:300% 300%;animation:hdrGrad 9s ease infinite;padding:1.75rem 2.25rem;position:relative;overflow:hidden}
+.hdr-orb{position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.16) 0%,transparent 70%);top:-90px;right:-50px;animation:orbFloat 10s ease-in-out infinite;pointer-events:none}
+.hdr-orb2{position:absolute;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10) 0%,transparent 70%);bottom:-40px;left:30%;animation:orbFloat 13s ease-in-out infinite reverse;pointer-events:none}
+.hdr-shine{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hdr-shine::after{content:'';position:absolute;top:0;left:0;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent);animation:shimmer 5s ease-in-out infinite}
+.hdr::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 92% 8%,rgba(255,255,255,.12) 0%,transparent 60%);pointer-events:none}
+.hdr-eyebrow{font-size:10px;color:rgba(255,255,255,.6);letter-spacing:.13em;text-transform:uppercase;margin-bottom:5px;position:relative;z-index:1}
+.hdr h1{font-size:22px;font-weight:800;color:white;margin-bottom:3px;position:relative;z-index:1;font-family:'Poppins',sans-serif;letter-spacing:-.3px}
+.hdr-sub{font-size:13px;color:rgba(255,255,255,.72);margin-bottom:16px;position:relative;z-index:1}
+.hdr-badges{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);padding:4px 12px;border-radius:100px;color:white;font-size:12px;font-weight:600;backdrop-filter:blur(8px)}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:pulseDot 2s infinite}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:1.5rem 2rem;background:linear-gradient(180deg,#e8f0ff 0%,#f3f7ff 100%)}
+.kc{background:white;border-radius:13px;padding:.9rem 1rem;border:1px solid #d0e0ff;border-top:3px solid #1167FF;box-shadow:0 2px 8px rgba(17,103,255,.07);opacity:0;animation:fadeUp .5s ease both;transition:all .25s cubic-bezier(.34,1.4,.64,1)}
+.kc:nth-child(1){animation-delay:.1s}.kc:nth-child(2){animation-delay:.2s}.kc:nth-child(3){animation-delay:.3s}.kc:nth-child(4){animation-delay:.4s}
+.kc:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 10px 32px rgba(17,103,255,.18)}
+.kl{font-size:10px;color:#6B7280;font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.kv{font-size:26px;font-weight:800;line-height:1;margin-bottom:2px;font-family:'Poppins',sans-serif}
+.kv.blue{color:#1167FF}.kv.green{color:#16A34A}.kv.red{color:#DC2626}.kv.orange{color:#D97706}
+.ksub{font-size:10px;font-weight:600}
+.ksub.blue{color:#1167FF}.ksub.green{color:#16A34A}.ksub.red{color:#DC2626}.ksub.orange{color:#D97706}.ksub.grey{color:#9CA3AF}
+
+.section{padding:1.25rem 2rem}
+.section+.section{border-top:1px solid #EEF3FF}
+.section-alt{background:linear-gradient(180deg,#f6f9ff,#f0f5ff)}
+.sec-title{font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;color:#0a1a5c;text-transform:uppercase;letter-spacing:.09em;margin-bottom:.9rem;display:flex;align-items:center;gap:8px}
+.sec-title::before{content:'';display:block;width:3px;height:14px;background:linear-gradient(180deg,#1167FF,#4a8eff);border-radius:2px;flex-shrink:0}
+.sec-note{font-size:10px;color:#9CA3AF;font-style:italic;margin-top:.6rem}
+
+/* Composition + âge */
+.comp-age-row{display:grid;grid-template-columns:210px 1fr;gap:1.5rem;align-items:start}
+.donut-wrap{text-align:center}
+.donut-canvas-wrap{position:relative;width:160px;height:160px;margin:0 auto}
+.dleg{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+.dleg-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#374151;gap:8px}
+.dleg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.dleg-val{font-weight:700;font-family:'Poppins',sans-serif;font-size:11px}
+.age-bars{display:flex;flex-direction:column;gap:7px}
+.age-bar-row{display:grid;grid-template-columns:58px 1fr 48px;align-items:center;gap:8px}
+.age-label{font-size:10px;font-weight:600;color:#374151;text-align:right}
+.age-bar-track{height:20px;background:#EEF3FF;border-radius:5px;overflow:hidden}
+.age-bar-fill{height:100%;border-radius:5px;width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1);display:flex;align-items:center;padding-left:8px}
+.age-bar-fill span{font-size:9px;font-weight:700;color:rgba(255,255,255,.92);white-space:nowrap}
+.age-val{font-size:11px;font-weight:700;color:#374151;text-align:right;font-family:'Poppins',sans-serif}
+
+/* Conformité par catégorie */
+.conf-grid{display:flex;flex-direction:column;gap:8px}
+.conf-row{display:grid;grid-template-columns:175px 1fr 44px 58px;align-items:center;gap:10px;padding:6px 10px;border-radius:10px;transition:background .15s}
+.conf-row:hover{background:#f0f5ff}
+.conf-name{font-size:12px;font-weight:600;color:#1a2341}
+.conf-count{font-size:10px;color:#9CA3AF}
+.conf-bar-track{height:10px;background:#EEF3FF;border-radius:5px;overflow:hidden}
+.conf-bar-fill{height:100%;border-radius:5px;width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
+.conf-pct{font-size:13px;font-weight:700;text-align:right;font-family:'Poppins',sans-serif}
+.conf-nc{font-size:10px;text-align:right;font-weight:600}
+
+/* Marques */
+.marques-grid{display:flex;flex-direction:column;gap:7px}
+.mq-row{display:grid;grid-template-columns:135px 1fr 44px;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;transition:all .18s;opacity:0;animation:slideRight .4s ease both}
+.mq-row:hover{background:#f0f5ff;transform:translateX(4px)}
+.mq-name{font-size:12px;font-weight:600;color:#1a2341;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.mq-tag{font-size:9px;padding:1px 6px;border-radius:100px;font-weight:700}
+.mq-tag.warn{background:#FEE2E2;color:#DC2626}
+.mq-tag.ok{background:#DCFCE7;color:#16A34A}
+.mq-bar-track{height:22px;background:#EEF3FF;border-radius:6px;overflow:hidden}
+.mq-bar-fill{height:100%;border-radius:6px;width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1);display:flex;align-items:center;padding-left:8px}
+.mq-bar-fill span{font-size:9px;font-weight:700;color:rgba(255,255,255,.9);white-space:nowrap}
+.mq-pct{font-size:12px;font-weight:700;text-align:right;font-family:'Poppins',sans-serif}
+
+/* Sous-cats */
+.subcats-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 2rem}
+.sc-item{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;margin-bottom:8px}
+.sc-info{display:flex;flex-direction:column;gap:3px}
+.sc-name{font-size:11px;font-weight:600;color:#374151}
+.sc-bar-track{height:8px;background:#EEF3FF;border-radius:4px;overflow:hidden}
+.sc-bar-fill{height:100%;border-radius:4px;width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1);background:linear-gradient(90deg,#1167FF,#4a8eff)}
+.sc-val{font-size:11px;font-weight:700;color:#1167FF;font-family:'Poppins',sans-serif;white-space:nowrap;text-align:right}
+
+/* Organismes */
+.orgs-row{display:grid;grid-template-columns:170px 1fr;gap:1.5rem;align-items:center}
+.org-row{display:grid;grid-template-columns:150px 1fr 45px;align-items:center;gap:8px;margin-bottom:7px}
+.org-name{font-size:11px;font-weight:600;color:#374151}
+.org-bar-track{height:12px;background:#EEF3FF;border-radius:4px;overflow:hidden}
+.org-bar-fill{height:100%;border-radius:4px;width:0;background:linear-gradient(90deg,#1167FF,#6b91ff);transition:width 1.1s cubic-bezier(.22,1,.36,1)}
+.org-val{font-size:11px;font-weight:700;color:#1167FF;text-align:right;font-family:'Poppins',sans-serif}
+
+/* Leaderboard */
+.lb-rows{display:flex;flex-direction:column;gap:4px}
+.lb-row{display:grid;grid-template-columns:24px 1fr 1fr 58px;align-items:center;gap:8px;padding:7px 8px;border-radius:10px;transition:all .18s;opacity:0;animation:fadeUp .4s ease both}
+.lb-row:hover{background:#fff5f5;transform:translateX(3px)}
+.lb-rank{font-size:12px;font-weight:700;color:#9CA3AF;text-align:center}
+.lb-name{font-size:11px;font-weight:600;color:#1a2341;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-bar-track{height:20px;background:#FEE2E2;border-radius:5px;overflow:hidden}
+.lb-bar-fill{height:100%;border-radius:5px;width:0;background:linear-gradient(90deg,#DC2626,#ef4444);transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.lb-val{font-size:12px;font-weight:700;color:#DC2626;text-align:right;font-family:'Poppins',sans-serif}
+
+.footer{background:linear-gradient(180deg,#f2f6ff,#ecf1fb);border-top:1px solid #dce8ff;padding:.9rem 2rem;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#9CA3AF}
+.footer strong{color:#1167FF}
+
+@media(max-width:640px){
+  .kpi-row{grid-template-columns:repeat(2,1fr);padding:1rem}
+  .comp-age-row,.orgs-row{grid-template-columns:1fr}
+  .section{padding:1rem}
+  .subcats-grid{grid-template-columns:1fr}
+  .conf-row{grid-template-columns:1fr 44px;row-gap:4px}
+  .conf-bar-track{grid-column:1/3}
+  .conf-count{display:none}
+  .lb-row{grid-template-columns:20px 1fr 50px}
+  .lb-bar-track{display:none}
+  .mq-row{grid-template-columns:110px 1fr 36px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hdr">
+  <div class="hdr-orb"></div><div class="hdr-orb2"></div><div class="hdr-shine"></div>
+  <p class="hdr-eyebrow">Réseau Autosphere &middot; Emil Frey France</p>
+  <h1>État du parc équipements VGP</h1>
+  <p class="hdr-sub">Composition, âge et conformité &mdash; Mai 2026</p>
+  <div class="hdr-badges">
+    <span class="badge"><span class="badge-dot"></span>8 538 équipements</span>
+    <span class="badge">119 concessions</span>
+    <span class="badge">Données au 13 mai 2026</span>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="kc"><p class="kl">Équipements</p><p class="kv blue" id="kv0">0</p><p class="ksub blue">dans 119 concessions</p></div>
+  <div class="kc"><p class="kl">Conformes</p><p class="kv green" id="kv1">0</p><p class="ksub green">70,8% du parc</p></div>
+  <div class="kc"><p class="kl">Contrôles dépassés</p><p class="kv red" id="kv2">0</p><p class="ksub red">à régulariser</p></div>
+  <div class="kc"><p class="kl">Obs. en retard</p><p class="kv orange" id="kv3">0</p><p class="ksub orange">sur 3 164 équipements</p></div>
+</div>
+
+<!-- COMPOSITION + ÂGE -->
+<div class="section section-alt" id="sec-comp">
+  <div class="sec-title">Composition &amp; pyramide des âges</div>
+  <div class="comp-age-row">
+    <div class="donut-wrap">
+      <div class="donut-canvas-wrap"><canvas id="compChart"></canvas></div>
+      <div class="dleg">
+        <div class="dleg-row"><span style="display:flex;align-items:center;gap:5px"><span class="dleg-dot" style="background:#1167FF"></span>Ponts élévateurs</span><span class="dleg-val" style="color:#1167FF">4 407</span></div>
+        <div class="dleg-row"><span style="display:flex;align-items:center;gap:5px"><span class="dleg-dot" style="background:#6b91ff"></span>Matériel d'atelier</span><span class="dleg-val" style="color:#6b91ff">3 023</span></div>
+        <div class="dleg-row"><span style="display:flex;align-items:center;gap:5px"><span class="dleg-dot" style="background:#bad1ff"></span>Outillage levage</span><span class="dleg-val" style="color:#bad1ff">411</span></div>
+        <div class="dleg-row"><span style="display:flex;align-items:center;gap:5px"><span class="dleg-dot" style="background:#8ab0ff"></span>Éq. carrosserie</span><span class="dleg-val" style="color:#8ab0ff">388</span></div>
+        <div class="dleg-row"><span style="display:flex;align-items:center;gap:5px"><span class="dleg-dot" style="background:#d4e0ff"></span>Autres</span><span class="dleg-val" style="color:#9CA3AF">309</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="age-bars" id="age-bars"></div>
+      <p class="sec-note">Âge moyen : <strong>12,4 ans</strong> &mdash; 20% ont plus de 20 ans &mdash; 3% ont plus de 30 ans</p>
+    </div>
+  </div>
+</div>
+
+<!-- CONFORMITÉ PAR CATÉGORIE -->
+<div class="section" id="sec-conf">
+  <div class="sec-title">Conformité par catégorie</div>
+  <div class="conf-grid" id="conf-grid"></div>
+</div>
+
+<!-- MARQUES PONTS -->
+<div class="section section-alt" id="sec-marques">
+  <div class="sec-title">Marques — ponts élévateurs <span style="font-weight:400;color:#9CA3AF;font-size:10px;text-transform:none;letter-spacing:0">&mdash; volume &amp; taux de conformité</span></div>
+  <div class="marques-grid" id="marques-grid"></div>
+  <p class="sec-note">⚠️ Fog (49%) et Werther (51%) : les marques les plus répandues sont aussi les moins conformes</p>
+</div>
+
+<!-- SOUS-CATÉGORIES PONTS -->
+<div class="section" id="sec-subcats">
+  <div class="sec-title">Types de ponts élévateurs</div>
+  <div class="subcats-grid" id="subcats-grid"></div>
+</div>
+
+<!-- ORGANISMES -->
+<div class="section section-alt" id="sec-orgs">
+  <div class="sec-title">Organismes de contrôle</div>
+  <div class="orgs-row">
+    <div style="text-align:center">
+      <div style="position:relative;width:155px;height:155px;margin:0 auto"><canvas id="orgsChart"></canvas></div>
+      <div style="font-size:10px;color:#6B7280;margin-top:6px">8 organismes référencés</div>
+    </div>
+    <div id="orgs-bars"></div>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="section" id="sec-lb">
+  <div class="sec-title">Top 10 concessions — observations en retard</div>
+  <div class="lb-rows" id="lb-rows"></div>
+</div>
+
+<div class="footer">
+  <span>EasyCS &mdash; Parc équipements Emil Frey France &middot; <strong>contact@easycs.fr</strong></span>
+  <span>Mai 2026 &middot; Confidentiel</span>
+</div>
+</div>
+
+<script>
+// ── Count-up ──
+function countUp(el, target, dur) {
+  var s = performance.now();
+  (function tick(now) {
+    var p = Math.min((now-s)/dur, 1), e = 1-Math.pow(1-p,3);
+    el.textContent = Math.round(e*target).toLocaleString('fr-FR').replace(/ /g,' ');
+    if(p<1) requestAnimationFrame(tick);
+  })(s);
+}
+window.addEventListener('load', function() {
+  setTimeout(function(){countUp(document.getElementById('kv0'),8538,1000);},100);
+  setTimeout(function(){countUp(document.getElementById('kv1'),6046,1000);},200);
+  setTimeout(function(){countUp(document.getElementById('kv2'),2043,900);},300);
+  setTimeout(function(){countUp(document.getElementById('kv3'),7631,900);},400);
+});
+
+// ── Age bars ──
+var ageData = [
+  {label:'Avant 1990', n:75,   color:'#DC2626'},
+  {label:'Années 90',  n:387,  color:'#D97706'},
+  {label:'Années 2000',n:1294, color:'#D97706'},
+  {label:'Années 2010',n:2260, color:'#1167FF'},
+  {label:'Années 2020',n:1907, color:'#4a8eff'},
+];
+var maxAge = 2260;
+document.getElementById('age-bars').innerHTML = ageData.map(function(d){
+  var pct = Math.round(100*d.n/maxAge);
+  return '<div class="age-bar-row">'+
+    '<div class="age-label">'+d.label+'</div>'+
+    '<div class="age-bar-track"><div class="age-bar-fill" style="background:'+d.color+'" data-w="'+pct+'"><span>'+d.n.toLocaleString('fr-FR')+'</span></div></div>'+
+    '<div class="age-val">'+d.n.toLocaleString('fr-FR')+'</div></div>';
+}).join('');
+
+// ── Conformité par catégorie ──
+var confData = [
+  {name:'Ponts élévateurs',    count:4407, pct:60, nc:1745, col:'#1167FF'},
+  {name:"Matériel d'atelier",  count:3023, pct:83, nc:510,  col:'#16A34A'},
+  {name:'Outillage de levage', count:411,  pct:86, nc:58,   col:'#16A34A'},
+  {name:'Éq. carrosserie',     count:388,  pct:72, nc:110,  col:'#D97706'},
+  {name:'Gerbeurs & chariots', count:251,  pct:96, nc:11,   col:'#16A34A'},
+];
+document.getElementById('conf-grid').innerHTML = confData.map(function(d){
+  var ncCol = d.nc > 200 ? '#DC2626' : d.nc > 50 ? '#D97706' : '#9CA3AF';
+  return '<div class="conf-row">'+
+    '<div><div class="conf-name">'+d.name+'</div><div class="conf-count">'+d.count.toLocaleString('fr-FR')+' éq.</div></div>'+
+    '<div class="conf-bar-track"><div class="conf-bar-fill" style="background:linear-gradient(90deg,'+d.col+','+d.col+'99)" data-w="'+d.pct+'"></div></div>'+
+    '<div class="conf-pct" style="color:'+d.col+'">'+d.pct+'%</div>'+
+    '<div class="conf-nc" style="color:'+ncCol+'">'+d.nc+' nc</div></div>';
+}).join('');
+
+// ── Marques ponts ──
+var marquesData = [
+  {name:'OMCN',      n:792, conf:62, warn:false},
+  {name:'Ravaglioli',n:786, conf:61, warn:false},
+  {name:'Provac',    n:659, conf:61, warn:false},
+  {name:'Fog',       n:617, conf:49, warn:true},
+  {name:'Werther',   n:162, conf:51, warn:true},
+  {name:'Nussbaum',  n:150, conf:67, warn:false},
+  {name:'Cascos',    n:131, conf:63, warn:false},
+  {name:'Technor',   n:108, conf:65, warn:false},
+];
+var maxMq = 792;
+document.getElementById('marques-grid').innerHTML = marquesData.map(function(d,i){
+  var col = d.warn ? '#DC2626' : d.conf>=65 ? '#16A34A' : '#1167FF';
+  var tag = d.warn ? '<span class="mq-tag warn">⚠ bas</span>' : d.conf>=65 ? '<span class="mq-tag ok">✓</span>' : '';
+  var pct = Math.round(100*d.n/maxMq);
+  return '<div class="mq-row" style="animation-delay:'+(i*0.07+0.1)+'s">'+
+    '<div class="mq-name">'+d.name+tag+'</div>'+
+    '<div class="mq-bar-track"><div class="mq-bar-fill" style="background:linear-gradient(90deg,'+col+','+col+'88)" data-w="'+pct+'"><span>'+d.conf+'% conf · '+d.n.toLocaleString('fr-FR')+' éq.</span></div></div>'+
+    '<div class="mq-pct" style="color:'+col+'">'+d.conf+'%</div></div>';
+}).join('');
+
+// ── Sous-catégories ponts ──
+var subcatData = [
+  {name:'Pont 2 colonnes', n:1827},
+  {name:'Pont à ciseaux',  n:1645},
+  {name:'Pont (autre)',    n:590},
+  {name:'Pont 4 colonnes', n:223},
+  {name:'Colonne élévatrice',n:34},
+  {name:'Pont mobile',     n:31},
+  {name:'Pont moto',       n:20},
+  {name:'Ciseau sous coque',n:19},
+];
+var maxSC = 1827;
+document.getElementById('subcats-grid').innerHTML = subcatData.map(function(d){
+  var pct = Math.round(100*d.n/maxSC);
+  return '<div class="sc-item">'+
+    '<div class="sc-info"><div class="sc-name">'+d.name+'</div>'+
+    '<div class="sc-bar-track"><div class="sc-bar-fill" data-w="'+pct+'"></div></div></div>'+
+    '<div class="sc-val">'+d.n.toLocaleString('fr-FR')+'</div></div>';
+}).join('');
+
+// ── Organismes ──
+var orgsData = [
+  {name:'Dekra Industrial',   n:2280, pct:26.7},
+  {name:'Facom',              n:1629, pct:19.1},
+  {name:'OMCN',               n:1156, pct:13.5},
+  {name:'Ravaglioli France',  n:848,  pct:9.9},
+  {name:'Fog Automotive',     n:739,  pct:8.7},
+  {name:'Provac',             n:667,  pct:7.8},
+  {name:'Autres',             n:1219, pct:14.3},
+];
+document.getElementById('orgs-bars').innerHTML = orgsData.map(function(d){
+  var barW = Math.round(d.pct/26.7*100);
+  return '<div class="org-row">'+
+    '<div class="org-name">'+d.name+'</div>'+
+    '<div class="org-bar-track"><div class="org-bar-fill" data-w="'+barW+'"></div></div>'+
+    '<div class="org-val">'+d.pct+'%</div></div>';
+}).join('');
+
+// ── Leaderboard ──
+var lbData = [
+  {name:'ABCIS AUVERGNE',         obs:317},
+  {name:'MOTORCAR NORD',           obs:298},
+  {name:'ABCIS TOURAINE',          obs:287},
+  {name:'SIVAM',                   obs:260},
+  {name:'ABCIS POITOU',            obs:228},
+  {name:'ABCIS PYRÉNÉES',          obs:207},
+  {name:'ABCIS PICARDIE',          obs:184},
+  {name:'TECHSTAR SAS',            obs:170},
+  {name:'KEOS ÉPERNAY SÉZANNE',    obs:163},
+  {name:'KEOS AIX-EN-PROVENCE',    obs:160},
+];
+var maxObs = 317;
+var medals = ['🥇','🥈','🥉'];
+document.getElementById('lb-rows').innerHTML = lbData.map(function(d,i){
+  var pct = Math.round(100*d.obs/maxObs);
+  return '<div class="lb-row" style="animation-delay:'+(i*0.06+0.1)+'s">'+
+    '<div class="lb-rank">'+(i<3?medals[i]:(i+1))+'</div>'+
+    '<div class="lb-name">'+d.name+'</div>'+
+    '<div class="lb-bar-track"><div class="lb-bar-fill" data-w="'+pct+'"></div></div>'+
+    '<div class="lb-val">'+d.obs+' obs</div></div>';
+}).join('');
+
+// ── IntersectionObserver ──
+var barObs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (!e.isIntersecting) return;
+    e.target.querySelectorAll('[data-w]').forEach(function(b,i){
+      setTimeout(function(){ b.style.width = b.dataset.w+'%'; }, i*70);
+    });
+    barObs.unobserve(e.target);
+  });
+}, {threshold:0.15});
+['sec-comp','sec-conf','sec-marques','sec-subcats','sec-orgs','sec-lb'].forEach(function(id){
+  var el = document.getElementById(id);
+  if(el) barObs.observe(el);
+});
+
+// ── Charts ──
+new Chart(document.getElementById('compChart'),{
+  type:'doughnut',
+  data:{
+    labels:['Ponts élévateurs',"Matériel d'atelier",'Outillage levage','Éq. carrosserie','Autres'],
+    datasets:[{data:[4407,3023,411,388,309],backgroundColor:['#1167FF','#6b91ff','#bad1ff','#8ab0ff','#d4e0ff'],borderWidth:4,borderColor:'#fff',hoverOffset:10}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,cutout:'66%',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+': '+c.raw.toLocaleString('fr-FR');}}}}}
+});
+
+new Chart(document.getElementById('orgsChart'),{
+  type:'doughnut',
+  data:{
+    labels:orgsData.map(function(d){return d.name;}),
+    datasets:[{data:orgsData.map(function(d){return d.n;}),backgroundColor:['#1167FF','#387dff','#6b91ff','#8ab0ff','#bad1ff','#d4e0ff','#eef3ff'],borderWidth:3,borderColor:'#fff',hoverOffset:8}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.label+': '+c.raw.toLocaleString('fr-FR');}}}}}
+});
+</script>
+</body>
+</html>
